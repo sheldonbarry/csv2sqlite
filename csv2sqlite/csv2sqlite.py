@@ -63,10 +63,10 @@ def do_table(db_name, tb_name, tb_data, data_dict=None):
                 cur.execute("INSERT INTO %s VALUES %s" % (tb_name, values))                
                 con.commit()
             except:
-                errors.append(tb_data[row])
+                errors.append(row)
                 
         # write errors to log
-        with open('error_log.txt', 'wr') as a:
+        with open('error_log.txt', 'w') as a:
             a.write("The following records were not added because they had errors:\n")
             for item in errors:
                 a.write(str(item)+'\n')

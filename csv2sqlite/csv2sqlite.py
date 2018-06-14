@@ -9,6 +9,11 @@
 import csv
 import sqlite3
 
+def log_error(error_text):
+    # write errors to log
+    with open('error_log.txt', 'a') as a:
+        a.write(error_text + '\n')
+
 # extract csv file and put it in a list (rows) of lists (fields)
 def csv_parse(filename, Delimiter, Quotechar='"'):
     with open(filename, 'rU') as a:
@@ -55,7 +60,9 @@ def do_table(db_name, tb_name, tb_data, data_dict=None):
                 # create string of row values to insert into database
                 values = ''
                 for field in row:
-                    values = values + "'" + field.decode('utf-8') + "'" + ','
+                    # add field value and allow for single quote char
+                    fieldvalue = field.decode('utf-8').replace("'","''")
+                    values = values + "'" + fieldvalue + "'" + ','
                 values = values[:-1]
                 values = '(' + values + ')'
             
@@ -63,13 +70,7 @@ def do_table(db_name, tb_name, tb_data, data_dict=None):
                 cur.execute("INSERT INTO %s VALUES %s" % (tb_name, values))                
                 con.commit()
             except:
-                errors.append(row)
-                
-        # write errors to log
-        with open('error_log.txt', 'w') as a:
-            a.write("The following records were not added because they had errors:\n")
-            for item in errors:
-                a.write(str(item)+'\n')
+                log_error(str(row))
 
 def create_data_dict(filename, Delimiter, Quotechar, key=None):
     """Create a data dictionary in list format of field names and data types"""
